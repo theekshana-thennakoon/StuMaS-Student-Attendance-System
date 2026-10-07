@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { 
-  Bell, 
   QrCode, 
   Calendar, 
   User, 
@@ -47,8 +46,6 @@ export const StudentHomeView = ({
   const [showCodeJoinModal, setShowCodeJoinModal] = useState(false);
   const [joinMsg, setJoinMsg] = useState(null);
   const [showFullscreenQr, setShowFullscreenQr] = useState(false);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   // Generate unique student QR code image
   useEffect(() => {
@@ -129,27 +126,6 @@ export const StudentHomeView = ({
             style={{ padding: '6px 12px', fontSize: '0.78rem' }}
           >
             <PlusCircle size={14} /> Join Class Code
-          </button>
-
-          <button 
-            onClick={onOpenNotifications}
-            className="icon-circle-btn" 
-            style={{ position: 'relative' }}
-            title="Notifications"
-          >
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span style={{
-                position: 'absolute',
-                top: '6px',
-                right: '6px',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: 'var(--danger)',
-                boxShadow: '0 0 6px var(--danger)'
-              }} />
-            )}
           </button>
         </div>
       </div>
@@ -235,28 +211,6 @@ export const StudentHomeView = ({
             </div>
           </div>
 
-          {/* Today's Status Banner */}
-          <div className="glass-card-primary" style={{ padding: '16px', borderRadius: '18px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.8rem', opacity: 0.9 }}>Today's Status</span>
-              <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>{todayAttendance.dateStr}</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>
-                {todayAttendance.status}
-              </div>
-              <span style={{
-                background: '#fff',
-                color: 'var(--primary)',
-                padding: '4px 10px',
-                borderRadius: 'var(--radius-full)',
-                fontSize: '0.75rem',
-                fontWeight: 700
-              }}>
-                {todayAttendance.time || 'Pending'}
-              </span>
-            </div>
-          </div>
         </div>
 
         {/* Right Column: Classes for Your Grade */}
