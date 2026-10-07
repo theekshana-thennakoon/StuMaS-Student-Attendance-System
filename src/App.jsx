@@ -7,8 +7,10 @@ import {
   AttendanceProvider, 
   useAttendance 
 } from './context/AttendanceContext';
+import { GlassAlertProvider } from './context/GlassAlertContext';
 import { SplashView } from './views/SplashView';
 import { LoginView } from './views/LoginView';
+import { RegisterView } from './views/RegisterView';
 import { StudentHomeView } from './views/StudentHomeView';
 import { CheckInView } from './views/CheckInView';
 import { HistoryView } from './views/HistoryView';
@@ -38,7 +40,7 @@ const MainApp = () => {
   const { darkMode, toggleDarkMode, notifications } = useAttendance();
 
   // Screen routing states
-  const [currentScreen, setCurrentScreen] = useState('splash'); // 'splash' | 'login' | 'app'
+  const [currentScreen, setCurrentScreen] = useState('splash'); // 'splash' | 'login' | 'register' | 'app'
   const [adminLoginInitial, setAdminLoginInitial] = useState(false);
   const [studentTab, setStudentTab] = useState('home'); // 'home' | 'attendance' | 'schedule' | 'history' | 'profile' | 'notifications' | 'settings'
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
@@ -48,38 +50,34 @@ const MainApp = () => {
 
   return (
     <div className="app-container">
-      {/* Modern Responsive Glassy App Header */}
-      <header className="app-header">
-        <div className="header-top-row">
-          <div 
-            className="brand-section" 
-            onClick={() => { 
-              if (isAuthenticated) {
+      {/* Modern Responsive Glassy App Header (Only rendered when user is logged in) */}
+      {isAuthenticated && (
+        <header className="app-header">
+          <div className="header-top-row">
+            <div 
+              className="brand-section" 
+              onClick={() => { 
                 if (role === 'student') setStudentTab('home');
-              } else {
-                setCurrentScreen('splash');
-              }
-            }}
-          >
-            <div className="brand-icon-box">
-              <GraduationCap size={24} strokeWidth={2.4} />
+              }}
+            >
+              <div className="brand-icon-box">
+                <GraduationCap size={24} strokeWidth={2.4} />
+              </div>
+              <div>
+                <div className="brand-title">StuMaS</div>
+                <div className="brand-subtitle">Attendance System</div>
+              </div>
+              <span className="live-db-badge" style={{
+                background: isFirebaseActive ? 'var(--success-bg)' : 'var(--primary-light)',
+                color: isFirebaseActive ? 'var(--success)' : 'var(--primary)'
+              }}>
+                <span className="pulse-indicator" style={{ background: isFirebaseActive ? 'var(--success)' : 'var(--primary)', width: '6px', height: '6px' }} />
+                <span>{isFirebaseActive ? 'Cloud Live' : 'Local DB'}</span>
+              </span>
             </div>
-            <div>
-              <div className="brand-title">StuMaS</div>
-              <div className="brand-subtitle">Attendance System</div>
-            </div>
-            <span className="live-db-badge" style={{
-              background: isFirebaseActive ? 'var(--success-bg)' : 'var(--primary-light)',
-              color: isFirebaseActive ? 'var(--success)' : 'var(--primary)'
-            }}>
-              <span className="pulse-indicator" style={{ background: isFirebaseActive ? 'var(--success)' : 'var(--primary)', width: '6px', height: '6px' }} />
-              <span>{isFirebaseActive ? 'Cloud Live' : 'Local DB'}</span>
-            </span>
-          </div>
 
-          {/* Quick utility icons & Role Indicator */}
-          <div className="header-actions">
-            {isAuthenticated && (
+            {/* Quick utility icons & Role Indicator */}
+            <div className="header-actions">
               <span 
                 className="status-pill"
                 style={{
@@ -93,10 +91,7 @@ const MainApp = () => {
               >
                 {role === 'teacher' ? '👨‍🏫 Admin Panel' : '🎓 Student'}
               </span>
-            )}
 
-
-            {isAuthenticated && (
               <button 
                 onClick={() => { logout(); setCurrentScreen('login'); }}
                 className="icon-circle-btn" 
@@ -105,10 +100,10 @@ const MainApp = () => {
               >
                 <LogOut size={16} />
               </button>
-            )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Student Top Navigation Sub-strip (when student is logged in) */}
       {effectiveScreen === 'app' && role === 'student' && (
@@ -157,8 +152,19 @@ const MainApp = () => {
             <LoginView 
               initialIsAdmin={adminLoginInitial}
               onBack={() => setCurrentScreen('splash')}
-              onRegisterClick={() => { setAdminLoginInitial(false); setCurrentScreen('login'); }}
+              onRegisterClick={() => setCurrentScreen('register')}
               onLoginSuccess={() => setCurrentScreen('app')}
+            />
+          </div>
+        )}
+
+        {/* 2.5 Register Screen */}
+        {effectiveScreen === 'register' && (
+          <div style={{ maxWidth: '460px', margin: '0 auto', width: '100%' }}>
+            <RegisterView 
+              onBack={() => setCurrentScreen('login')}
+              onLoginClick={() => setCurrentScreen('login')}
+              onRegisterSuccess={() => setCurrentScreen('app')}
             />
           </div>
         )}
@@ -252,10 +258,12 @@ const MainApp = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <AttendanceProvider>
-        <MainApp />
-      </AttendanceProvider>
-    </AuthProvider>
+    <GlassAlertProvider>
+      <AuthProvider>
+        <AttendanceProvider>
+          <MainApp />
+        </AttendanceProvider>
+      </AuthProvider>
+    </GlassAlertProvider>
   );
 }

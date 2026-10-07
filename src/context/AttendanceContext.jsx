@@ -14,6 +14,7 @@ import {
   recordAttendanceInFirestore, 
   syncStudentStatusInFirestore 
 } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 
 const AttendanceContext = createContext();
 
@@ -150,6 +151,47 @@ export const AttendanceProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('stumas_roster', JSON.stringify(studentsRoster));
   }, [studentsRoster]);
+
+  // Real-time sync with Firebase Cloud Firestore 'students' collection
+  useEffect(() => {
+    if (!db || !isFirebaseActive) return;
+    try {
+      const unsub = onSnapshot(collection(db, "students"), (snapshot) => {
+        const firestoreStudents = [];
+        snapshot.forEach(docSnap => {
+          firestoreStudents.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        if (firestoreStudents.length > 0) {
+          setStudentsRoster(prev => {
+            const merged = [...prev];
+            firestoreStudents.forEach(fs => {
+              const idx = merged.findIndex(m => m.studentId === fs.studentId || m.id === fs.id);
+              if (idx >= 0) {
+                merged[idx] = { ...merged[idx], ...fs };
+              } else {
+                merged.push({
+                  id: fs.id || "std-" + Date.now(),
+                  name: fs.name,
+                  studentId: fs.studentId,
+                  className: fs.className || "Class 8A",
+                  grade: fs.grade || "Grade 8",
+                  status: fs.status || "Not Marked",
+                  time: fs.time || "-",
+                  avatar: fs.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
+                });
+              }
+            });
+            return merged;
+          });
+        }
+      }, (err) => {
+        console.warn("Live Firestore students sync notice:", err.message);
+      });
+      return () => unsub();
+    } catch (err) {
+      console.warn("Snapshot setup notice:", err);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('stumas_notifications', JSON.stringify(notifications));

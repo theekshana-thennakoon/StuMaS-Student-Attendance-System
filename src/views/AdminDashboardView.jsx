@@ -39,11 +39,14 @@ export const AdminDashboardView = ({ onBack, onOpenFirebaseConfig }) => {
   const [selectedGrade, setSelectedGrade] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   
+  // Helper to generate unique Student ID
+  const generateStudentId = () => `STD-${new Date().getFullYear()}${Math.floor(1000 + Math.random() * 9000)}`;
+
   // Student & Class Modal States
   const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [newStudentForm, setNewStudentForm] = useState({
     name: '',
-    studentId: '',
+    studentId: `STD-${new Date().getFullYear()}${Math.floor(1000 + Math.random() * 9000)}`,
     grade: 'Grade 8',
     className: 'Class 8A'
   });
@@ -582,7 +585,7 @@ export const AdminDashboardView = ({ onBack, onOpenFirebaseConfig }) => {
               e.preventDefault();
               addStudentToRoster(newStudentForm);
               setShowAddStudentModal(false);
-              setNewStudentForm({ name: '', studentId: '', grade: 'Grade 8', className: 'Class 8A' });
+              setNewStudentForm({ name: '', studentId: generateStudentId(), grade: 'Grade 8', className: 'Class 8A' });
             }}>
               <div className="form-group" style={{ marginBottom: '12px' }}>
                 <label className="input-label">Student Full Name</label>

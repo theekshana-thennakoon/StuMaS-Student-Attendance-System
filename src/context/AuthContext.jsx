@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { DEFAULT_STUDENT, DEFAULT_TEACHER } from '../data/initialData';
+import { registerUserInFirebase, loginUserFromFirebase } from '../firebase';
 
 const AuthContext = createContext();
 
@@ -33,6 +34,53 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('stumas_auth', isAuthenticated ? 'true' : 'false');
   }, [currentUser, role, isAuthenticated]);
 
+  const loginWithFirebase = async (identifier, password, targetRole = 'student') => {
+    const result = await loginUserFromFirebase(identifier, password, targetRole);
+    if (!result.success) {
+      return result;
+    }
+    const user = result.user;
+    if (targetRole === 'teacher' || user.role === 'teacher' || user.role === 'admin') {
+      setCurrentUser({
+        ...DEFAULT_TEACHER,
+        name: user.name || "Administrator",
+        email: user.email || "admin@school.edu"
+      });
+      setRole('teacher');
+    } else {
+      setCurrentUser({
+        ...DEFAULT_STUDENT,
+        name: user.name || "Student",
+        email: user.email || "",
+        studentId: user.studentId || ("STD-" + Math.floor(1000 + Math.random() * 9000)),
+        grade: user.grade || "Grade 8",
+        className: user.className || "Class 8A"
+      });
+      setRole('student');
+    }
+    setIsAuthenticated(true);
+    return { success: true, user };
+  };
+
+  const registerUser = async (registrationData) => {
+    const result = await registerUserInFirebase(registrationData);
+    if (!result.success) {
+      return result;
+    }
+    const user = result.user;
+    setCurrentUser({
+      ...DEFAULT_STUDENT,
+      name: user.name,
+      email: user.email,
+      studentId: user.studentId,
+      grade: user.grade || "Grade 8",
+      className: user.className || "Class 8A"
+    });
+    setRole('student');
+    setIsAuthenticated(true);
+    return result;
+  };
+
   const login = (roleToLogin = 'student', credentials = {}) => {
     if (roleToLogin === 'teacher') {
       setCurrentUser({
@@ -47,7 +95,9 @@ export const AuthProvider = ({ children }) => {
         ...DEFAULT_STUDENT,
         name: studentName,
         email: credentials.email || DEFAULT_STUDENT.email,
-        studentId: credentials.studentId || ("STD-" + Math.floor(1000 + Math.random() * 9000))
+        studentId: credentials.studentId || ("STD-" + Math.floor(1000 + Math.random() * 9000)),
+        grade: credentials.grade || "Grade 8",
+        className: credentials.className || "Class 8A"
       });
       setRole('student');
     }
@@ -75,6 +125,8 @@ export const AuthProvider = ({ children }) => {
       role,
       isAuthenticated,
       login,
+      loginWithFirebase,
+      registerUser,
       logout,
       updateProfile,
       switchRole

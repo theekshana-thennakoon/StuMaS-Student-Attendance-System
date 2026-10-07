@@ -8,32 +8,40 @@ import {
   ArrowLeft,
   Sparkles,
   Shield,
-  UserCheck
+  UserCheck,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const LoginView = ({ initialIsAdmin = false, onBack, onRegisterClick, onLoginSuccess }) => {
-  const { login } = useAuth();
+  const { loginWithFirebase } = useAuth();
   const [isAdminMode, setIsAdminMode] = useState(initialIsAdmin);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorMessage('');
     setIsLoading(true);
     const targetRole = isAdminMode ? 'teacher' : 'student';
-    setTimeout(() => {
-      login(targetRole, { 
-        email: email || (isAdminMode ? 'admin@school.edu' : 'student@school.edu'), 
-        password,
-        name: name || (email ? email.split('@')[0] : (isAdminMode ? 'Administrator' : 'Student'))
-      });
+
+    try {
+      const res = await loginWithFirebase(email, password, targetRole);
+      if (!res.success) {
+        setErrorMessage(res.error || 'Authentication failed. Please verify your credentials.');
+        setIsLoading(false);
+        return;
+      }
       setIsLoading(false);
       if (onLoginSuccess) onLoginSuccess();
-    }, 400);
+    } catch (err) {
+      console.error("Login verification error:", err);
+      setErrorMessage(err.message || 'Error communicating with database.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -88,6 +96,26 @@ export const LoginView = ({ initialIsAdmin = false, onBack, onRegisterClick, onL
             : 'Login with your Student ID or Email'}
         </p>
       </div>
+
+      {/* Error Feedback */}
+      {errorMessage && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '10px 14px',
+          borderRadius: 'var(--radius-md)',
+          background: 'rgba(239, 68, 68, 0.12)',
+          border: '1px solid rgba(239, 68, 68, 0.35)',
+          color: '#ef4444',
+          fontSize: '0.82rem',
+          marginBottom: '16px',
+          lineHeight: 1.4
+        }}>
+          <AlertCircle size={16} style={{ flexShrink: 0 }} />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       {/* Form */}
       <form onSubmit={handleSubmit}>
@@ -150,7 +178,7 @@ export const LoginView = ({ initialIsAdmin = false, onBack, onRegisterClick, onL
         {/* Submit */}
         <button type="submit" className="btn-primary" disabled={isLoading} style={{ height: '48px', fontSize: '0.95rem' }}>
           {isLoading 
-            ? 'Authorizing...' 
+            ? 'Verifying with Firebase...' 
             : (isAdminMode ? 'Authorize & Enter Admin Panel' : 'Login to Student Portal')}
         </button>
       </form>
@@ -174,6 +202,7 @@ export const LoginView = ({ initialIsAdmin = false, onBack, onRegisterClick, onL
               setIsAdminMode(true);
               setEmail('');
               setPassword('');
+              setErrorMessage('');
             }}
             className="btn-outline"
             style={{ width: '100%', padding: '10px 14px', fontSize: '0.85rem' }}
@@ -199,6 +228,7 @@ export const LoginView = ({ initialIsAdmin = false, onBack, onRegisterClick, onL
               setIsAdminMode(false);
               setEmail('');
               setPassword('');
+              setErrorMessage('');
             }}
             className="btn-outline"
             style={{ width: '100%', padding: '10px 14px', fontSize: '0.85rem' }}
