@@ -109,7 +109,7 @@ const MainApp = () => {
         </header>
       )}
 
-      {/* Student Top Navigation Sub-strip (when student is logged in) */}
+      {/* Student Navigation (Desktop Top Strip / Mobile Bottom Tabs) */}
       {effectiveScreen === 'app' && role === 'student' && (
         <nav className="student-nav-strip">
           {[
@@ -118,7 +118,7 @@ const MainApp = () => {
             { id: 'history', label: 'History', icon: Calendar },
             { id: 'schedule', label: 'Schedule', icon: Clock },
             { id: 'profile', label: 'Profile', icon: User },
-            { id: 'notifications', label: `Alerts ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: Bell },
+            { id: 'notifications', label: 'Alerts', icon: Bell, badge: unreadCount },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map(tab => {
             const Icon = tab.icon;
@@ -128,8 +128,14 @@ const MainApp = () => {
                 key={tab.id}
                 onClick={() => setStudentTab(tab.id)}
                 className={`student-nav-tab-btn ${isActive ? 'active' : ''}`}
+                title={tab.label}
               >
-                <Icon size={15} />
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon size={18} />
+                  {tab.badge > 0 && (
+                    <span className="tab-badge">{tab.badge}</span>
+                  )}
+                </div>
                 <span>{tab.label}</span>
               </button>
             );
