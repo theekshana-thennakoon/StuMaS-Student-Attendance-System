@@ -26,7 +26,9 @@ export const ProfileView = ({ onBack, onOpenSettings }) => {
     name: currentUser.name || "Student",
     phone: currentUser.phone || "",
     email: currentUser.email || "",
-    guardian: currentUser.guardian || ""
+    guardian: currentUser.guardian || "",
+    dob: currentUser.dob || "2010-01-01",
+    gender: currentUser.gender || "Not Specified"
   });
 
   const handleOpenEdit = () => {
@@ -35,7 +37,9 @@ export const ProfileView = ({ onBack, onOpenSettings }) => {
       name: currentUser.name || "Student",
       phone: currentUser.phone || "",
       email: currentUser.email || "",
-      guardian: currentUser.guardian || ""
+      guardian: currentUser.guardian || "",
+      dob: currentUser.dob || "2010-01-01",
+      gender: currentUser.gender || "Not Specified"
     });
     setIsEditing(true);
   };
@@ -306,6 +310,53 @@ export const ProfileView = ({ onBack, onOpenSettings }) => {
                   onChange={e => setFormData({ ...formData, guardian: e.target.value })}
                   required
                 />
+              </div>
+
+              {/* Date of Birth */}
+              <div className="form-group">
+                <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Calendar size={15} color="var(--primary)" /> Date of Birth
+                </label>
+                <input 
+                  type="date" 
+                  className="glass-input" 
+                  style={{ paddingLeft: '14px', cursor: 'pointer' }}
+                  value={formData.dob}
+                  onChange={e => setFormData({ ...formData, dob: e.target.value })}
+                  required
+                />
+              </div>
+
+              {/* Gender */}
+              <div className="form-group">
+                <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Shield size={15} color="var(--primary)" /> Gender
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  {['Male', 'Female', 'Not Specified'].map(g => {
+                    const isSelected = formData.gender === g;
+                    return (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, gender: g })}
+                        style={{
+                          padding: '8px 4px',
+                          borderRadius: 'var(--radius-md)',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-color)',
+                          background: isSelected ? 'var(--primary-light)' : 'var(--glass-bg-subtle)',
+                          color: isSelected ? 'var(--primary)' : 'var(--text-main)',
+                          cursor: 'pointer',
+                          transition: 'var(--transition)'
+                        }}
+                      >
+                        {g}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div style={{ display: 'flex', gap: '8px', marginTop: '18px' }}>
