@@ -1,0 +1,261 @@
+import React, { useState } from 'react';
+import { 
+  AuthProvider, 
+  useAuth 
+} from './context/AuthContext';
+import { 
+  AttendanceProvider, 
+  useAttendance 
+} from './context/AttendanceContext';
+import { SplashView } from './views/SplashView';
+import { LoginView } from './views/LoginView';
+import { StudentHomeView } from './views/StudentHomeView';
+import { CheckInView } from './views/CheckInView';
+import { HistoryView } from './views/HistoryView';
+import { ScheduleView } from './views/ScheduleView';
+import { ProfileView } from './views/ProfileView';
+import { NotificationsView } from './views/NotificationsView';
+import { SettingsView } from './views/SettingsView';
+import { AdminDashboardView } from './views/AdminDashboardView';
+import { FirebaseConfigModal } from './views/FirebaseConfigModal';
+import { 
+  GraduationCap, 
+  Sparkles,
+  LogOut,
+  User,
+  Calendar,
+  Clock,
+  QrCode,
+  Layers,
+  Settings,
+  Bell,
+  Home
+} from 'lucide-react';
+import { isFirebaseActive } from './firebase';
+
+const MainApp = () => {
+  const { currentUser, role, isAuthenticated, login, logout, switchRole } = useAuth();
+  const { darkMode, toggleDarkMode, notifications } = useAttendance();
+
+  // Screen routing states
+  const [currentScreen, setCurrentScreen] = useState('splash'); // 'splash' | 'login' | 'app'
+  const [adminLoginInitial, setAdminLoginInitial] = useState(false);
+  const [studentTab, setStudentTab] = useState('home'); // 'home' | 'attendance' | 'schedule' | 'history' | 'profile' | 'notifications' | 'settings'
+  const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
+
+  const effectiveScreen = isAuthenticated ? 'app' : currentScreen;
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  return (
+    <div className="app-container">
+      {/* Modern Responsive Glassy App Header */}
+      <header className="app-header">
+        <div className="header-top-row">
+          <div 
+            className="brand-section" 
+            onClick={() => { 
+              if (isAuthenticated) {
+                if (role === 'student') setStudentTab('home');
+              } else {
+                setCurrentScreen('splash');
+              }
+            }}
+          >
+            <div className="brand-icon-box">
+              <GraduationCap size={24} strokeWidth={2.4} />
+            </div>
+            <div>
+              <div className="brand-title">StuMaS</div>
+              <div className="brand-subtitle">Attendance System</div>
+            </div>
+            <span className="live-db-badge" style={{
+              background: isFirebaseActive ? 'var(--success-bg)' : 'var(--primary-light)',
+              color: isFirebaseActive ? 'var(--success)' : 'var(--primary)'
+            }}>
+              <span className="pulse-indicator" style={{ background: isFirebaseActive ? 'var(--success)' : 'var(--primary)', width: '6px', height: '6px' }} />
+              <span>{isFirebaseActive ? 'Cloud Live' : 'Local DB'}</span>
+            </span>
+          </div>
+
+          {/* Quick utility icons & Role Indicator */}
+          <div className="header-actions">
+            {isAuthenticated && (
+              <span 
+                className="status-pill"
+                style={{
+                  fontSize: '0.78rem',
+                  fontWeight: 700,
+                  background: role === 'teacher' ? 'rgba(37, 99, 235, 0.12)' : 'var(--success-bg)',
+                  color: role === 'teacher' ? 'var(--primary)' : 'var(--success)',
+                  border: `1px solid ${role === 'teacher' ? 'rgba(37, 99, 235, 0.25)' : 'var(--success-border)'}`,
+                  marginRight: '6px'
+                }}
+              >
+                {role === 'teacher' ? '👨‍🏫 Admin Panel' : '🎓 Student'}
+              </span>
+            )}
+
+
+            {isAuthenticated && (
+              <button 
+                onClick={() => { logout(); setCurrentScreen('login'); }}
+                className="icon-circle-btn" 
+                title="Sign Out"
+                style={{ color: 'var(--danger)' }}
+              >
+                <LogOut size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Student Top Navigation Sub-strip (when student is logged in) */}
+      {effectiveScreen === 'app' && role === 'student' && (
+        <nav className="student-nav-strip">
+          {[
+            { id: 'home', label: 'Dashboard', icon: Home },
+            { id: 'attendance', label: 'QR Badge', icon: QrCode },
+            { id: 'history', label: 'History', icon: Calendar },
+            { id: 'schedule', label: 'Schedule', icon: Clock },
+            { id: 'profile', label: 'Profile', icon: User },
+            { id: 'notifications', label: `Alerts ${unreadCount > 0 ? `(${unreadCount})` : ''}`, icon: Bell },
+            { id: 'settings', label: 'Settings', icon: Settings }
+          ].map(tab => {
+            const Icon = tab.icon;
+            const isActive = studentTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setStudentTab(tab.id)}
+                className={`student-nav-tab-btn ${isActive ? 'active' : ''}`}
+              >
+                <Icon size={15} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
+
+      {/* Main Content Workspace (Full Width & Fluid Responsive) */}
+      <main className="app-workspace">
+        {/* 1. Splash Screen */}
+        {effectiveScreen === 'splash' && (
+          <div style={{ maxWidth: '520px', margin: '0 auto', width: '100%' }}>
+            <SplashView 
+              onGetStarted={() => { setAdminLoginInitial(false); setCurrentScreen('login'); }}
+              onLoginClick={() => { setAdminLoginInitial(false); setCurrentScreen('login'); }}
+              onAdminLoginClick={() => { setAdminLoginInitial(true); setCurrentScreen('login'); }}
+            />
+          </div>
+        )}
+
+        {/* 2. Login Screen */}
+        {effectiveScreen === 'login' && (
+          <div style={{ maxWidth: '440px', margin: '0 auto', width: '100%' }}>
+            <LoginView 
+              initialIsAdmin={adminLoginInitial}
+              onBack={() => setCurrentScreen('splash')}
+              onRegisterClick={() => { setAdminLoginInitial(false); setCurrentScreen('login'); }}
+              onLoginSuccess={() => setCurrentScreen('app')}
+            />
+          </div>
+        )}
+
+        {/* 3. Authenticated Views */}
+        {effectiveScreen === 'app' && (
+          <>
+            {/* TEACHER / ADMIN PANEL */}
+            {role === 'teacher' && (
+              <AdminDashboardView 
+                onOpenFirebaseConfig={() => setIsFirebaseModalOpen(true)}
+              />
+            )}
+
+
+            {/* STUDENT VIEWS */}
+            {role === 'student' && (
+              <>
+                {studentTab === 'home' && (
+                  <StudentHomeView 
+                    onNavigateTab={(tab) => setStudentTab(tab)}
+                    onOpenNotifications={() => setStudentTab('notifications')}
+                    onOpenSchedule={() => setStudentTab('schedule')}
+                  />
+                )}
+
+                {studentTab === 'attendance' && (
+                  <div style={{ maxWidth: '480px', margin: '0 auto', width: '100%' }}>
+                    <CheckInView 
+                      onBack={() => setStudentTab('home')}
+                      onCheckInComplete={() => setStudentTab('home')}
+                    />
+                  </div>
+                )}
+
+                {studentTab === 'history' && (
+                  <div style={{ maxWidth: '680px', margin: '0 auto', width: '100%' }}>
+                    <HistoryView 
+                      onBack={() => setStudentTab('home')}
+                    />
+                  </div>
+                )}
+
+                {studentTab === 'schedule' && (
+                  <div style={{ maxWidth: '680px', margin: '0 auto', width: '100%' }}>
+                    <ScheduleView 
+                      onBack={() => setStudentTab('home')}
+                    />
+                  </div>
+                )}
+
+                {studentTab === 'profile' && (
+                  <div style={{ maxWidth: '520px', margin: '0 auto', width: '100%' }}>
+                    <ProfileView 
+                      onBack={() => setStudentTab('home')}
+                      onOpenSettings={() => setStudentTab('settings')}
+                    />
+                  </div>
+                )}
+
+                {studentTab === 'notifications' && (
+                  <div style={{ maxWidth: '560px', margin: '0 auto', width: '100%' }}>
+                    <NotificationsView 
+                      onBack={() => setStudentTab('home')}
+                    />
+                  </div>
+                )}
+
+                {studentTab === 'settings' && (
+                  <div style={{ maxWidth: '520px', margin: '0 auto', width: '100%' }}>
+                    <SettingsView 
+                      onBack={() => setStudentTab('home')}
+                      onOpenFirebaseConfig={() => setIsFirebaseModalOpen(true)}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </>
+        )}
+      </main>
+
+      {/* Firebase Database Config Modal */}
+      <FirebaseConfigModal 
+        isOpen={isFirebaseModalOpen}
+        onClose={() => setIsFirebaseModalOpen(false)}
+      />
+    </div>
+  );
+};
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AttendanceProvider>
+        <MainApp />
+      </AttendanceProvider>
+    </AuthProvider>
+  );
+}
