@@ -67,40 +67,44 @@ const MainApp = () => {
                 <div className="brand-title">StuMaS</div>
                 <div className="brand-subtitle">Attendance System</div>
               </div>
-              <span className="live-db-badge" style={{
-                background: isFirebaseActive ? 'var(--success-bg)' : 'var(--primary-light)',
-                color: isFirebaseActive ? 'var(--success)' : 'var(--primary)'
-              }}>
-                <span className="pulse-indicator" style={{ background: isFirebaseActive ? 'var(--success)' : 'var(--primary)', width: '6px', height: '6px' }} />
-                <span>{isFirebaseActive ? 'Cloud Live' : 'Local DB'}</span>
-              </span>
+              {role === 'teacher' && (
+                <span className="live-db-badge" style={{
+                  background: isFirebaseActive ? 'var(--success-bg)' : 'var(--primary-light)',
+                  color: isFirebaseActive ? 'var(--success)' : 'var(--primary)'
+                }}>
+                  <span className="pulse-indicator" style={{ background: isFirebaseActive ? 'var(--success)' : 'var(--primary)', width: '6px', height: '6px' }} />
+                  <span>{isFirebaseActive ? 'Cloud Live' : 'Local DB'}</span>
+                </span>
+              )}
             </div>
 
-            {/* Quick utility icons & Role Indicator */}
-            <div className="header-actions">
-              <span 
-                className="status-pill"
-                style={{
-                  fontSize: '0.78rem',
-                  fontWeight: 700,
-                  background: role === 'teacher' ? 'rgba(37, 99, 235, 0.12)' : 'var(--success-bg)',
-                  color: role === 'teacher' ? 'var(--primary)' : 'var(--success)',
-                  border: `1px solid ${role === 'teacher' ? 'rgba(37, 99, 235, 0.25)' : 'var(--success-border)'}`,
-                  marginRight: '6px'
-                }}
-              >
-                {role === 'teacher' ? '👨‍🏫 Admin Panel' : '🎓 Student'}
-              </span>
+            {/* Quick utility icons & Role Indicator (Admin only) */}
+            {role === 'teacher' && (
+              <div className="header-actions">
+                <span 
+                  className="status-pill"
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    background: 'rgba(37, 99, 235, 0.12)',
+                    color: 'var(--primary)',
+                    border: '1px solid rgba(37, 99, 235, 0.25)',
+                    marginRight: '6px'
+                  }}
+                >
+                  👨‍🏫 Admin Panel
+                </span>
 
-              <button 
-                onClick={() => { logout(); setCurrentScreen('login'); }}
-                className="icon-circle-btn" 
-                title="Sign Out"
-                style={{ color: 'var(--danger)' }}
-              >
-                <LogOut size={16} />
-              </button>
-            </div>
+                <button 
+                  onClick={() => { logout(); setCurrentScreen('login'); }}
+                  className="icon-circle-btn" 
+                  title="Sign Out"
+                  style={{ color: 'var(--danger)' }}
+                >
+                  <LogOut size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </header>
       )}

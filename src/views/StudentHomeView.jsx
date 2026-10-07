@@ -400,7 +400,7 @@ export const StudentHomeView = ({
 
       {/* Join By Class Code Modal */}
       {showCodeJoinModal && (
-        <div className="modal-overlay" onClick={() => setShowCodeJoinModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '6px' }}>
               Join Class with Code
@@ -460,7 +460,7 @@ export const StudentHomeView = ({
 
       {/* Fullscreen Student QR Modal */}
       {showFullscreenQr && (
-        <div className="modal-overlay" onClick={() => setShowFullscreenQr(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" style={{ textAlign: 'center', maxWidth: '380px' }} onClick={e => e.stopPropagation()}>
             <span className="status-pill present" style={{ marginBottom: '8px' }}>
               Official Student Pass

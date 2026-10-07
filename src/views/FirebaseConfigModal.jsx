@@ -44,7 +44,7 @@ export const FirebaseConfigModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay">
       <div 
         className="modal-content" 
         style={{ maxWidth: '440px', maxHeight: '90vh', overflowY: 'auto' }}

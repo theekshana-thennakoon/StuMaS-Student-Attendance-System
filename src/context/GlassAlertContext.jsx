@@ -118,7 +118,6 @@ export const GlassAlertProvider = ({ children }) => {
       {alertData.isOpen && (
         <div 
           className="modal-overlay" 
-          onClick={closeAlert}
           style={{
             zIndex: 999999,
             background: 'rgba(8, 13, 24, 0.72)',

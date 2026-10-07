@@ -399,7 +399,7 @@ export const AdminDashboardView = ({ onBack, onOpenFirebaseConfig }) => {
 
       {/* Modal: Create Class / Grade */}
       {showCreateModal && (
-        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '440px' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '6px' }}>
               Create New Class
@@ -513,7 +513,7 @@ export const AdminDashboardView = ({ onBack, onOpenFirebaseConfig }) => {
 
       {/* Modal: Scanner for Teacher to Scan Student's QR Badges */}
       {showScanStudentModal && (
-        <div className="modal-overlay" onClick={() => setShowScanStudentModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '420px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '4px' }}>
               Scan Student Attendance QR
@@ -572,7 +572,7 @@ export const AdminDashboardView = ({ onBack, onOpenFirebaseConfig }) => {
 
       {/* Modal: Add Student to Roster */}
       {showAddStudentModal && (
-        <div className="modal-overlay" onClick={() => setShowAddStudentModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '420px' }} onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '4px' }}>
               Enroll New Student

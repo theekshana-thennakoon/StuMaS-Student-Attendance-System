@@ -11,13 +11,14 @@ import {
   Edit3,
   Shield,
   Heart,
-  GraduationCap
+  GraduationCap,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useAttendance } from '../context/AttendanceContext';
 
 export const ProfileView = ({ onBack, onOpenSettings }) => {
-  const { currentUser, updateProfile } = useAuth();
+  const { currentUser, updateProfile, logout } = useAuth();
   const { studentGrade, setStudentGrade, availableGrades } = useAttendance();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedGrade, setSelectedGrade] = useState(currentUser.grade || studentGrade || 'Grade 8');
@@ -187,17 +188,38 @@ export const ProfileView = ({ onBack, onOpenSettings }) => {
       </div>
 
       {/* Edit Profile Action */}
-      <button 
-        onClick={handleOpenEdit} 
-        className="btn-primary"
-        style={{ height: '48px', fontSize: '0.95rem' }}
-      >
-        <Edit3 size={18} /> Edit Profile
-      </button>
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button 
+          onClick={handleOpenEdit} 
+          className="btn-primary"
+          style={{ height: '46px', fontSize: '0.92rem', flex: 2 }}
+        >
+          <Edit3 size={17} /> Edit Profile
+        </button>
+
+        <button 
+          onClick={logout} 
+          className="btn-outline"
+          style={{
+            height: '46px', 
+            fontSize: '0.92rem', 
+            flex: 1, 
+            color: 'var(--danger)', 
+            borderColor: 'var(--danger-border)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px'
+          }}
+          title="Sign Out"
+        >
+          <LogOut size={16} /> Sign Out
+        </button>
+      </div>
 
       {/* Edit Profile Modal */}
       {isEditing && (
-        <div className="modal-overlay" onClick={() => setIsEditing(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '440px' }}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '14px' }}>
               Edit Student Details

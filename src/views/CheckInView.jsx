@@ -164,7 +164,7 @@ export const CheckInView = ({ onBack, onCheckInComplete }) => {
 
       {/* Manual Check In Modal */}
       {showManualModal && (
-        <div className="modal-overlay" onClick={() => setShowManualModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '6px' }}>
               Submit Attendance Note
